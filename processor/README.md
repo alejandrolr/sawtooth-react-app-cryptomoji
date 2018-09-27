@@ -41,7 +41,7 @@ In order to start up the full processor, run `docker-compose up`.
 
 ### The Apply Method
 
-In particular you should understand the [apply](handler.js#L48) method.
+In particular you should understand the [apply](handler.js#L53) method.
 This is where the majority of the work of processing a transaction happens. It
 takes two special objects, `txn` and `context`, which contain all of the data
 and methods you will need, and are explained in detail below.
