@@ -1,7 +1,7 @@
 # Cryptomoji Transaction Processor
 
-The transaction processor is where all the logic of your Sawtooth blockchain
-lives. You can think of it as analogous to "smart contracts" on other
+The transaction processor is where all the logic of a Sawtooth blockchain
+lives. It is as analogous to "smart contracts" on other
 platforms, but it is a much more powerful concept. You can write a transaction
 processor to be as simple just setting keys to values, or as complex as entire
 application environments. For example, the
@@ -12,11 +12,11 @@ contracts right on a Sawtooth blockchain.
 ## Contents
 
 - [Getting Started and Running Tests](#getting-started-and-running-tests)
-- [The Curriculum](#the-curriculum)
+- [Handler](#handler)
     * [The Apply Method](#the-apply-method)
     * [The Txn Object](#the-txn-object)
     * [The Context Object](#the-context-object)
-- [The Project](#the-project)
+- [Transaction Processor](#transaction-processor)
     * [01 Services](#01-services)
     * [02 MojiHandler](#02-mojihandler)
     * [03 Create Collection](#03-create-collection)
@@ -35,22 +35,9 @@ npm install
 npm test
 ```
 
-You will see a number of tests running, and even more getting skipped (those
-are for the extra credit). Most of those that are _not_ being skipped are
-**failing**. There is no UI for you to design and build here, so your job is as
-simple (or as complex) as getting these tests to pass.
+In order to start up the full processor, run `docker-compose up`.
 
-In order to start up the full processor, run `docker-compose up` as detailed in
-the [Using Docker](../README.md#using-docker) section of the part-two README.
-
-## The Curriculum
-
-Before you start on building this section make sure you have reviewed the
-[Sawtooth Curriculum](../README.md#the-curriculum), in particular the sections
-on global state, and the transaction processor tutorial. Also be familiar with
-the [Design](../README.md#the-design) of the Cryptomoji app. Although it
-applies to the client too, most of the actual implementation of this design
-will happen here, in the transaction processor.
+## Handler
 
 ### The Apply Method
 
@@ -68,8 +55,7 @@ transactions that are invalid.
 
 ### The Txn Object
 
-The `txn` object is essentially the transaction sent from your client, though
-for convenience, the header has been deserialized for you. This gives you
+The `txn` object is essentially the transaction sent from your client. This gives you
 access to some useful information that may come in handy when executing the
 Cryptomoji design:
 
@@ -116,7 +102,7 @@ context.setState({
 _Note that the addresses here have been truncated for readability. You must use
 full and valid state addresses for both methods._
 
-## The Project
+## Transaction Processor
 
 ### 01 Services
 
@@ -126,9 +112,8 @@ full and valid state addresses for both methods._
 - [services/prng.js](services/prng.js)
 
 The transaction processor makes use of many of the same helper functions that
-the client does. You will need to encode/decode data and calculate state
-addresses largely identical to how the client does it. Feel free to just
-copy/paste useful code between the two modules.
+the client does. It is needed to encode/decode data and calculate state
+addresses largely identical to how the client does it.
 
 In addition to those repeats, the processor has a `getPrng` function. This
 takes a seed, and returns a pseudo-random number generator function. That
@@ -138,8 +123,6 @@ important for creating pseudo-random effects (like generating new cryptomoji),
 that will still be _deterministic_. Every blockchain node validating these
 transactions will get the exact same results.
 
-Oh, and we've already done `getPrng` for you. You're welcome.
-
 ### 02 MojiHandler
 
 **Module:** [handler.js](handler.js)
@@ -148,8 +131,7 @@ All transaction processors include at least one transaction handler, and that
 transaction handler has one very important method: `apply`. Apply is called
 every time a transaction payload needs to be executed. It is the central router
 for your processor, decoding the payload, figuring out what to do with it, and
-sending it off to get done. These tests cover the basics of that interaction:
-decoding the payload and rejecting unknown actions.
+sending it off to get done.
 
 ### 03 Create Collection
 
@@ -159,21 +141,18 @@ From here on out the processor will not test specific stub functions, but
 _behavior_. You can build out your MojiHandler however you like, but it must be
 able to properly handle the various payloads outlined in the specifications. It
 must correctly reject invalid payloads, and write good encoded entities to
-state with valid payloads. Use the design specs and the failing tests as your
-guide, and build _your_ transaction processor.
+state with valid payloads.
 
-This particular test will expect your handler to be able to create new
-collection appropriately. It should throw an `InvalidTransaction` error if the
-signer already has a collection, and populate a new collection with three
-pseudo-random cryptomoji. Both the collection and the cryptomoji must be
-properly constructed objects, with the properties and values outlined in the
-design.
+It should throw an `InvalidTransaction` error if the signer already has a collection, 
+and populate a new collection with three pseudo-random cryptomoji. Both the collection 
+and the cryptomoji must be properly constructed objects, with the properties and 
+values outlined in the design.
 
 ### 04 Select Sire
 
 **Spec:** [Select Sire](../README.md#select-sire)
 
-You must be able to handle `SELECT_SIRE` actions appropriately. Validate that
+It handles `SELECT_SIRE` actions appropriately. Validate that
 the signer has a collection, and that the selected sire is a part of that
 collection. After validation, create a new sire listing for the signer,
 replacing any existing listings.
@@ -182,25 +161,7 @@ replacing any existing listings.
 
 **Spec:** [Breed Moji](../README.md#breed-moji)
 
-You must be able to handle `BREED_MOJI` actions appropriately. Validate that
+It handles `BREED_MOJI` actions appropriately. Validate that
 the signer has a collection, that the sire is listed appropriately, and that
 the breeder belongs to the signer. If so, create a new pseudo-random moji with
 genes based on its parents, and add it to the signer's collection.
-
-## Extra Credit
-
-If you made it this far, congratulations! You've built a distributed
-application on Hyperledger Sawtooth. You should have a decent enough grasp of
-the fundamentals to start designing and building your own apps. However, if you
-wanted to go further and explore concepts like multi-party agreements and
-deleting state, there are a full suite of additional tests based around trading
-cryptomoji between collections. In order to run them you must remove the
-`.skip` from the wrapping describe block in each of the "ExtraCredit" tests in
-the [tests/](tests/) directory. Use these tests and the specs from the part-two
-README to guide your implementation:
-
-- [Create Offer](../README.md#create-offer)
-- [Cancel Offer](../README.md#cancel-offer)
-- [Add Response](../README.md#add-response)
-- [Cancel Response](../README.md#cancel-response)
-- [Accept Response](../README.md#accept-response)
