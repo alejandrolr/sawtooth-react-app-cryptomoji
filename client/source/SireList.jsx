@@ -16,7 +16,7 @@ export class SireList extends React.Component {
     getSires()
       .then(sires => {
         this.setState({
-          sires: sires.map(sire =>{
+          sires: sires.map(sire => {
             sire.isSire = true;
             return sire;
           })
@@ -25,6 +25,9 @@ export class SireList extends React.Component {
   }
 
   render() {
-    return <MojiList moji={this.state.sires} />;
+    if (this.state.sires.length === 0)
+      return <div><h4 class="badge badge-light">No sires found anywhere! You must set one moji as sire</h4></div>;
+    else
+      return <MojiList moji={this.state.sires} />;
   }
 }

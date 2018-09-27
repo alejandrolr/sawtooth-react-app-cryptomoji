@@ -142,7 +142,7 @@ export class Moji extends React.Component {
             <tr>
               <td>sire</td>
               <td>{moji.sire
-                ? <MojiListItem address={moji.sire}/>
+                ? <MojiListItem address={moji.sire} />
                 : 'none'
               }</td>
             </tr>
