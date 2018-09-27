@@ -7,7 +7,7 @@ This app will allow users to collect and breed collectible _kaomoji_: strings of
 - [Using Docker](#using-docker)
     * [Components](#components)
     * [Start/Stop Commands](#startstop-commands)
-- [The Project](#about-the-project)
+- [About The Project](#about-the-project)
     * [Client](#client)
     * [Transaction Processor](#transaction-processor)
 - [The Design](#the-design)
@@ -27,18 +27,7 @@ This app will allow users to collect and breed collectible _kaomoji_: strings of
         - [Create Collection](#create-collection)
         - [Select Sire](#select-sire)
         - [Breed Moji](#breed-moji)
-- [Extra Credit](#extra-credit)
-    * [State Entities](#state-entities)
-        - [Offer](#offer)
-    * [Addressing](#addressing-1)
-        - [Offer](#offer-1)
-    * [Payloads](#payloads-1)
-        - [Create Offer](#create-offer)
-        - [Add Response](#add-response)
-        - [Accept Response](#accept-response)
-        - [Cancel Offer](#cancel-offer)
-        - [Cancel Response](#cancel-response)
-- [Nightmare Mode](#nightmare-mode)
+- [Advanced Features](#advanced-features)
 
 ## Using Docker
 
@@ -98,54 +87,44 @@ The typical Sawtooth workflow looks something like this:
       (perhaps address _...000000a_ becomes `1`)
 5. Later, the client might read that state, and decode it for display
 
-So, you are responsible only for building two components (the client and the
-transaction processor) and for keeping those components in agreement on how to
+So, there are only two components (the client and the
+transaction processor) to develop and for keeping those components in agreement on how to
 encode payloads and state. This application-wide logic is typically referred to
 in Sawtooth with the term "transaction family".
-
-For Cryptomoji, the client and processor are each in their own directory, with
-their own tests and their own READMEs. You should develop the components in
-parallel on a feature-by-feature basis. For example, implement collection
-creation on _both_ the client and the processor before moving on to sire
-selection on _either_.
 
 For the broad transaction family design, continue reading [below](#the-design).
 
 ### Client
 
-**Directory:** [code/part-two/client/](client/)
+**Directory:** [client/](client/)
 
-**README:** [code/part-two/client/README.md](client/README.md)
+**Tests:** [client/tests/](client/tests/)
 
-**Tests:** [code/part-two/client/tests/](client/tests/)
-
-A React/Webpack UI which allows users to create collections of cryptomoji,
-breed them, and (in the extra credit) trade with other users.
+A React/Webpack UI which allows users to create collections of cryptomoji and
+breed them.
 
 ### Transaction Processor
 
-**Directory:** [code/part-two/processor/](processor/)
+**Directory:** [processor/](processor/)
 
-**README:** [code/part-two/processor/README.md](processor/README.md)
-
-**Tests:** [code/part-two/processor/tests/](processor/tests/)
+**Tests:** [processor/tests/](processor/tests/)
 
 A Node.js process which validates payloads sent from the client, writing data
 permanently to the blockchain.
 
 ## The Design
 
-There are a few basic questions you need to answer when designing your
+There are a few basic questions when designing a
 transaction family:
-- What do my transaction payloads look like?
-- What does data stored in state look like?
-- What addresses in state is that data stored under?
+- What do **transaction payloads** look like?
+- What does **data stored in state** look like?
+- What **addresses in state** is that data stored under?
 
-Let's answer these questions for _Cryptomoji_.
+In _Cryptomoji_ App:
 
 ### Encoding Data
 
-For simplicity and familiarity, we are going to encode both payloads and state
+For simplicity, we are going to encode both payloads and state
 data as JSON. To be clear, JSON would _not_ be a great choice in production. It
 is not space efficient; worse, it is not _deterministic_. Determinism
 is very important when writing state to the blockchain. Many many nodes will
@@ -160,7 +139,7 @@ purposes). Of course, JSON itself isn't quite enough, because we need _raw
 bytes_, not a string. For byte encoding, we are going to use Node's
 [Buffers](https://nodejs.org/api/buffer.html) again.
 
-So your encoding should look something like this:
+So encoding should look something like this:
 
 ```javascript
 Buffer.from(JSON.stringify(dataObj, getSortedKeys(dataObj)))
@@ -191,11 +170,11 @@ several entities to state.
 ```
 
 Cryptomoji are unique, breedable critters. Each has a DNA string of 36 hex
-characters, which is converted into an adorable _kaomoji_ for display (using a
-parsing tool that is included with the client). Aside from storing the identity
-of the owner, the string will also include breeding information: the identities
-of the parents (breeder and sire), as well as the identities of any children
-produced, either in the role of a breeder or a sire (bred/sired).
+characters, which is converted into an adorable _kaomoji_ for display. Aside 
+from storing the identity of the owner, the string will also include breeding 
+information: the identities of the parents (breeder and sire), as well as
+the identities of any children produced, either in the role of a breeder or 
+a sire (bred/sired).
 
 #### Collection
 
@@ -337,162 +316,7 @@ _Validation:_
 Creates a new cryptomoji for the owner of the _breeder_. The new cryptomoji is a
 pseudo-random combination of the DNA from the breeder and the sire.
 
-## Extra Credit
-
-For extra credit, add the capability for collections to trade cryptomoji
-between each other. This is harder than it sounds. One user will need to create
-an offer, while others add responses until the offer owner accepts them. This
-is a process that spans multiple transactions, never mind the possibility that
-one party might change their mind and decide to cancel an offer or response.
-
-### State Entities
-
-#### Offer
-
-```json
-{
-    "owner": "<string, public key>",
-    "moji": [ "<strings, moji addresses>" ],
-    "responses": [
-        {
-            "approver": "<string, public key>",
-            "moji": [ "<strings, moji addresses>" ]
-        }
-    ]
-}
-```
-
-Offers are a way of effectively creating a multi-signer transaction. One user
-creates the offer, then other users add responses to it. When the offer
-owner sees a response they like, they can accept it and exchange the cryptomoji.
-
-It is also possible for offer owners to request moji by adding responses to
-their own offer. These responses would then be approved by the mojis' owner.
-The "approver" key identifies the collection whose owner is required to approve
-a response.
-
-### Addressing
-
-#### Offer
-
-| Namespace (6) | Type prefix (2) | Collection prefix (8) | Identifier hash (54)
-| ------------- | --------------- | --------------------- | --------------------
-| `5f4d76`      | `03`            | `1b96dbb5`            | `f0b9646d76c0e89bb8024d7ff2f7b4cde935f91c703f1a1a888e4a`
-
-Like cryptomoji, offers are owned by a collection. In addition to their type
-prefix (`03`), an offer has an eight-character prefix, which is the first eight
-characters of a SHA-512 hash of the owner's public key. The final 54 characters
-are the first 54 characters of a SHA-512 hash. In this case, the hash is
-generated from a string created by sorting the addresses of the cryptomoji being
-offered, then concatenating those addresses with no spaces.
-
-For example, we might generate the hash for the address above like this:
-
-```javascript
-const moji1 = '5f4d76011b96dbb50c8514ab2a7cf361062601716bcd762097e41f9011a5e6f8ff6c5f';
-const moji2 = '5f4d7601bddce3731459230a5a425d9e71ad0110f0e5a76ed88b8cfc1c087b10682492';
-
-createHash('sha512').update(moji1 + moji2).digest('hex');
-// f0b9646d76c0e89bb8024d7ff2f7b4cde935f91c703f1a1a888e4a8f6c62ad9a97664eb27bb981021c30d02e3417e03948d7fae7a13ba080e9bf2b421818a80b
-```
-
-### Payloads
-
-#### Create Offer
-
-```json
-{
-    "action": "CREATE_OFFER",
-    "moji": [ "<strings, moji addresses>" ]
-}
-```
-
-_Validation:_
-- Signer must have a collection
-- Cryptomoji must exist
-- Signer must own the cryptomoji
-- Cryptomoji must not be listed as a sire
-
-Creates an offer to trade some of a collection's moji. Owners of other
-collections can add responses to the offer.
-
-#### Add Response
-
-```json
-{
-    "action": "ADD_RESPONSE",
-    "offer": "<string, offer address>",
-    "moji": [ "<strings, moji addresses>" ]
-}
-
-```
-
-_Validation:_
-- Signer must have a collection
-- Cryptomoji must exist
-- Offer must exist
-- Signer must own the moji _or_ be the owner of the offer
-- No identical response already exists
-
-Adds a response to an offer. This is the other side of the trade. The owner of
-the offer can add responses to their own offer, suggesting a trade for moji
-owned by someone else. Otherwise, the response must come from the owner of the
-moji.
-
-#### Accept Response
-
-```json
-{
-    "action": "ACCEPT_RESPONSE",
-    "offer": "<string, offer address>",
-    "response": "<number, index of response>"
-}
-```
-
-_Validation:_
-- Signer must have a collection
-- Signer must be the "approver" on the response
-- Exchanged cryptomoji must be owned by the appropriate parties
-- Response index must correspond to a valid response on the offer
-
-Accepts the response, exchanges the responder's cryptomoji for the cryptomoji
-originally listed in the offer, then deletes the offer from state.
-
-#### Cancel Offer
-
-```json
-{
-  "action": "CANCEL_OFFER",
-  "offer": "<string, offer address>"
-}
-```
-
-_Validation:_
-- Signer must have a collection
-- Offer must exist
-- Signer must own the offer
-
-Deletes the offer from state with no changes in moji ownership.
-
-#### Cancel Response
-
-```json
-{
-    "action": "CANCEL_RESPONSE",
-    "offer": "<string, offer address>",
-    "response": "<number, index of response>"
-}
-```
-
-_Validation:_
-- Signer must have a collection
-- Offer must exist
-- Signer must be the creator of the response
-
-Deletes the response from the offer's list of responses, leaving `null` in its
-place.
-
-## Nightmare Mode
+## Advanced Features
 
 In the original Cryptokitties app on Ethereum, much was done using
 timestamps. After breeding, sires had a short period of downtime,
@@ -501,5 +325,3 @@ exponentially increasing pregnancy time to create a child.
 Adding this gameplay feature to Cryptomoji will require that you understand and
 use Sawtooth's
 [Block Info TP](https://sawtooth.hyperledger.org/docs/core/releases/1.0/transaction_family_specifications/blockinfo_transaction_family.html).
-
-Good luck.
