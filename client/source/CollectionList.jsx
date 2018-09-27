@@ -27,12 +27,12 @@ export class CollectionList extends React.Component {
   render() {
     const { collections } = this.state;
     if (!collections) {
-      return <div><h4 class="badge badge-light">No collections found anywhere!</h4></div>;
+      return <div><h4 className="badge badge-light">No collections found anywhere!</h4></div>;
     }
     return (
       <div>
         <h2>Collections!</h2>
-        <table class="table table-striped">
+        <table className="table table-striped">
           <thead>
             <tr>
               <th scope="col">#</th>
@@ -41,8 +41,8 @@ export class CollectionList extends React.Component {
           </thead>
           <tbody>
             {collections.map((collection, i) => (
-              <tr>
-                <th scope="row">{i}</th>
+              <tr key={i} >
+                <th scope="row" >{i}</th>
                 {
                   collection.key === this.props.publicKey ? (
                     <td> <Link to={'/collection/' + collection.key}>{collection.key}</Link> 👍Yours!</td>

@@ -70,23 +70,23 @@ export class Auth extends React.Component {
     return (
       <div>
         {/* Sign Up Form */}
-        <form class="form-inline" onSubmit={this.login}>
-          <div class="form-group mb-2">
-            <label for="input1">Private Key: {' '}</label>
+        <form className="form-inline" onSubmit={this.login}>
+          <div className="form-group mb-2">
+            <label htmlFor="input1">Private Key: {' '}</label>
           </div>
           <div class="form-group mx-sm-3 mb-2">
             <input
               id="input1"
               type="text"
-              class="form-control"
+              className="form-control"
               name="privateKey"
               value={this.state.privateKey || ''}
               onChange={this.handlePrivateKeyChange}
             />
           </div>
-          <div class="form-group mx-sm-1 mb-2">
+          <div className="form-group mx-sm-1 mb-2">
             {
-              !isLoggedIn && <input class="btn btn-primary" type="submit" value="Login" />
+              !isLoggedIn && <input className="btn btn-primary" type="submit" value="Login" />
             }
           </div>
         </form>
@@ -97,7 +97,7 @@ export class Auth extends React.Component {
           !isLoggedIn &&
           (
             <input
-              class="btn btn-dark"
+              className="btn btn-dark"
               type="button"
               onClick={this.generateNewPrivateKey}
               value="Generate New Key">

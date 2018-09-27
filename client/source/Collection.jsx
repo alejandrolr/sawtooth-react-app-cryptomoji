@@ -44,7 +44,7 @@ export class Collection extends React.Component {
     if (!collection) {
       return (
         <div>
-          <h3 class="badge badge-light">
+          <h3 className="badge badge-light">
             We can't find a collection for public key <code>{publicKey}</code> !
           </h3>
         </div>

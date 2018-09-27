@@ -63,7 +63,7 @@ export class App extends React.Component {
     return (
       <div className="container">
         <NavBar publicKey={publicKey} logout={this.logout} />
-        {publicKey && <div><h5 class="badge badge-light">Your public Key is: <code>{publicKey}</code></h5></div>}
+        {publicKey && <div><h5 className="badge badge-light">Your public Key is: <code>{publicKey}</code></h5></div>}
         <br />
         <Switch>
           <Route

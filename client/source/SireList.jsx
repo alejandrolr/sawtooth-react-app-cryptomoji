@@ -26,7 +26,7 @@ export class SireList extends React.Component {
 
   render() {
     if (this.state.sires.length === 0)
-      return <div><h4 class="badge badge-light">No sires found anywhere! You must set one moji as sire</h4></div>;
+      return <div><h4 className="badge badge-light">No sires found anywhere! You must set one moji as sire</h4></div>;
     else
       return <MojiList moji={this.state.sires} />;
   }
