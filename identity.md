@@ -23,7 +23,7 @@ exit
 docker exec -it shell bash
 ```
 
-### 4. Create a policy indicating permited/denied keys:
+### 3. Create a policy indicating permited/denied keys:
 
 This DESIRED_KEY should be the public key of an user that wanted to access the blockchain.
 ```
@@ -35,7 +35,7 @@ sawtooth identity policy create policy_1 "PERMIT_KEY 035f611861fa5493bfdaa149faf
 ```
 So, this user will be able to send transactions to the validator and commit new changes to the Blockchain.
 
-### 5. Create a role to apply policy:
+### 4. Create a role to apply policy:
 ```
 sawtooth identity role create transactor.transaction_signer.cryptomoji policy_1 --url "http://rest-api:8008"
 ```
