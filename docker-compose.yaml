@@ -81,3 +81,10 @@ services:
         fi;
         tail -f /dev/null
       "
+
+  identity-tp:
+    image: hyperledger/sawtooth-identity-tp:1.0
+    container_name: identity-tp
+    depends_on:
+      - rest-api
+    entrypoint: identity-tp -vv -C tcp://validator:4004
